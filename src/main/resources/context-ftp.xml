@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:bean xmlns="http://mina.apache.org/ftpserver/spring/v1"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://mina.apache.org/ftpserver/spring/v1 http://mina.apache.org/ftpserver/ftpserver-1.0.xsd">
+    <server id="server">
+		<db-user-manager encrypt-passwords="salted">
+		    <data-source>
+		        <beans:bean class="org.postgresql.Driver">
+			        <beans:property name="driverClassName" value="org.postgresql.Driver" />
+			        <beans:property name="url" value="jdbc:postgresql://localhost:5432/mgps" />
+			        <beans:property name="username" value="postgres" />
+			        <beans:property name="password" value="postgres" />
+			    </beans:bean>
+		    </data-source>
+		    <insert-user>
+		    	INSERT INTO FTP_USER (
+		    		userid, userpassword,
+		        	homedirectory, enableflag, writepermission, idletime, uploadrate, downloadrate
+		        ) VALUES (
+		        	'{userid}', '{userpassword}', '{homedirectory}',
+		        	'{enableflag}', '{writepermission}', {idletime}, {uploadrate}, {downloadrate}
+		        )
+		    </insert-user>
+		    <update-user>
+		        UPDATE FTP_USER
+		        SET
+		            userpassword='{userpassword}',
+		            homedirectory='{homedirectory}',
+		            enableflag={enableflag},
+		            writepermission={writepermission},
+		            idletime={idletime},
+		            uploadrate={uploadrate},
+		            downloadrate={downloadrate}
+		        WHERE userid='{userid}'
+		    </update-user>
+		    <delete-user>
+		        DELETE FROM FTP_USER WHERE userid = '{userid}'
+		    </delete-user>
+		    <select-user>
+		        SELECT userid, userpassword, homedirectory,
+		            enableflag, writepermission, idletime, uploadrate, downloadrate
+		        FROM FTP_USER
+		        WHERE userid = '{userid}'
+		    </select-user>
+		    <select-all-users>
+		        SELECT userid FROM FTP_USER ORDER BY userid
+		    </select-all-users>
+		    <is-admin>
+		        SELECT userid
+		        FROM FTP_USER
+		        WHERE userid='{userid}' AND userid='admin'
+		        </is-admin>
+		    <authenticate>SELECT userpassword from FTP_USER WHERE userid='{userid}'</authenticate>
+		</db-user-manager>
+    </server>
+</beans:bean>
